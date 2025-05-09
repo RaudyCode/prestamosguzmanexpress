@@ -1,0 +1,100 @@
+extends ../layout/header-ruta
+
+block contenido
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        // Encabezado
+        div(class="mb-8")
+            h1(class="font-extrabold text-3xl md:text-5xl text-gray-900 mb-2") Gestión de Rutas
+            p(class="text-gray-600") Administra y configura las rutas de cobro
+
+        // Mensajes de error
+        if errores
+            div(class="max-w-md mx-auto mb-8")
+                each error in errores
+                    div(class="bg-red-50 border-l-4 border-red-500 p-4 mb-2")
+                        p(class="text-red-700 font-medium")= error.msg
+
+        // Formulario de creación
+        div(class="bg-white rounded-lg shadow-lg overflow-hidden mb-8")
+            div(class="px-6 py-8")
+                form.space-y-6(method="POST" action="/rutas" novalidate class="max-w-lg mx-auto")
+                    input(type="hidden" name="_csrf" value=csrfToken)
+
+                    // Campo Ruta
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="nombre") Ruta
+                        div(class="relative")
+                            input(id="nombre" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" 
+                                placeholder="Nombre de la Ruta" 
+                                type="text" 
+                                name="nombre")
+
+                    // Campo Capital
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="capital") Capital
+                        div(class="relative")
+                            input(id="capital" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" 
+                                placeholder="Capital de Ruta" 
+                                type="number" 
+                                name="capital")
+
+                    // Campo Día de Cobro
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="diaCobro") Día de Cobro
+                        select#diaCobro(name='diaCobro' 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors")
+                            option(value='Lunes') Lunes
+                            option(value='Martes') Martes
+                            option(value='Miércoles') Miércoles
+                            option(value='Jueves') Jueves
+                            option(value='Viernes') Viernes
+                            option(value='Sábado') Sábado
+                            option(value='Domingo') Domingo
+
+                    // Botón de envío
+                    div(class="flex justify-center")
+                        button(type="submit" 
+                            class="w-full max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2")
+                            svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6")
+                            span Crear Ruta
+
+        // Lista de Rutas
+        div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+            div(class="px-6 py-8")
+                h2(class="text-2xl font-bold text-gray-900 mb-6 text-center") Rutas Creadas
+
+                ul(class="space-y-4")
+                    each ruta in rutas
+                        li(class="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow")
+                            div(class="flex justify-between items-center")
+                                div(class="flex items-center gap-4")
+                                    // Indicador de día
+                                    div(class="bg-indigo-600 text-white rounded-lg p-3 flex items-center justify-center min-w-[60px]")
+                                        p(class="font-bold text-lg")= `${ruta.diaCobro.substring(0, 3)}`
+
+                                    // Información de la ruta
+                                    a(href=`rutas/admin/${ruta.id}` class="hover:text-indigo-600 transition-colors")
+                                        p(class="font-semibold text-lg")= ruta.nombre
+                                        p(class="text-gray-600")= `${new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(ruta.capital)}`
+
+                                // Botones de acción
+                                div(class="flex gap-3")
+                                    a(href=`/rutas/editar/${ruta.id}` 
+                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors")
+                                        svg(class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z")
+                                        span Editar
+
+                                    form(method="POST" action=`/rutas/eliminar/${ruta.id}` class="inline")
+                                        input(type="hidden" name="_csrf" value=csrfToken)
+                                        button(type="submit" 
+                                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors")
+                                            svg(class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16")
+                                            span Eliminar
+
+block scripts
+    script(src="/js/sidebar.js")

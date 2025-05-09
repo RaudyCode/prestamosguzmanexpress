@@ -1,0 +1,401 @@
+extends ../layout/dashboard
+
+block contenido
+    //- Header con título y acciones
+    div(class="bg-white shadow-sm mb-6")
+        div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4")
+            div(class="flex justify-between items-center")
+                div
+                    h1(class="text-2xl font-bold text-gray-900")=pagina
+                    p(class="mt-1 text-sm text-gray-500")=ruta.nombre
+                div(class="flex gap-4")
+                    
+                    button#imprimirTodos(class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" data-id=`${ruta.id}`)
+                        svg(class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor")
+                            path(fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd")
+                        span Imprimir Todos
+
+    //- Barra de búsqueda
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6")
+        div(class="relative")
+            input(
+                type="text" 
+                id="searchInput"
+                placeholder="Buscar por nombre del cliente o ID del préstamo..." 
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            )
+            div(class="absolute inset-y-0 right-0 flex items-center pr-3")
+                svg(class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor")
+                    path(fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd")
+
+    //- Grid de recibos
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        if prestamos && prestamos.length > 0
+            div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="recibosContainer")
+                each prestamo in prestamos
+                    - const configuracion = prestamo.configuracion || {}
+                    - const nombreCompania = configuracion.nombreCompania || 'Compañía'
+                    - const telefono1 = configuracion.telefono1 || 'N/A'
+                    - const telefono2 = configuracion.telefono2 || 'N/A'
+                    div(class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 receipt-card" 
+                        data-cliente=prestamo.cliente.nombre.toLowerCase()
+                        data-id=prestamo.id)
+                        //- Header del recibo
+                        div(class="bg-indigo-50 px-6 py-4 border-b border-indigo-100")
+                            div(class="text-center")
+                                h3(class="text-lg font-semibold text-indigo-900")=nombreCompania
+                                p(class="text-sm text-indigo-600") Tel.: #{telefono1}, #{telefono2}
+                        
+                        //- Contenido del recibo
+                        div(class="p-6 space-y-4")
+                            //- Información de la ruta y cliente
+                            div(class="space-y-2")
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Ruta
+                                    span(class="text-sm text-gray-900")=prestamo.ruta.nombre
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Cliente
+                                    span(class="text-sm text-gray-900")=prestamo.cliente.nombre
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Dirección
+                                    span(class="text-sm text-gray-900")=prestamo.cliente.direccion
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Teléfono
+                                    span(class="text-sm text-gray-900")=prestamo.cliente.telefono
+                            
+                            //- Información del préstamo
+                            div(class="space-y-2 pt-4 border-t border-gray-100")
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Inicio
+                                    span(class="text-sm text-gray-900")=prestamo.fechaInicio
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Final
+                                    span(class="text-sm text-gray-900")=prestamo.fechaDeCaducidad
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Monto Prestado
+                                    span(class="text-sm font-semibold text-gray-900")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(prestamo.monto)
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Pago Semanal
+                                    span(class="text-sm font-semibold text-gray-900")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(prestamo.cuota)
+                                div(class="flex justify-between items-center")
+                                    span(class="text-sm font-medium text-gray-500") Estado
+                                    span(class=`text-sm font-semibold ${prestamo.estado === 'activo' ? 'text-green-600' : prestamo.estado === 'moroso' ? 'text-red-600' : 'text-yellow-600'}`)=prestamo.estado
+                        
+                        //- Footer con botón de imprimir
+                        div(class="px-6 py-4 bg-gray-50 border-t border-gray-100")
+                            button(class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-prestamo-id=prestamo.id)
+                                svg(class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor")
+                                    path(fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd")
+                                span Imprimir Recibo
+
+        else
+            div(class="text-center py-12")
+                svg(class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                    path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z")
+                h3(class="mt-2 text-sm font-medium text-gray-900") No hay préstamos
+                p(class="mt-1 text-sm text-gray-500") No hay préstamos registrados para esta ruta.
+
+    //- Mensaje cuando no hay resultados de búsqueda
+    p#noResults(class="text-center text-gray-500 mt-4 hidden") No se encontraron resultados para la búsqueda
+
+block scripts
+    script.
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función de búsqueda
+            const searchInput = document.getElementById('searchInput');
+            const receiptCards = document.querySelectorAll('.receipt-card');
+            const noResults = document.getElementById('noResults');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                let hasResults = false;
+
+                receiptCards.forEach(card => {
+                    const cliente = card.dataset.cliente;
+                    const id = card.dataset.id;
+                    
+                    if (cliente.includes(searchTerm) || id.includes(searchTerm)) {
+                        card.style.display = '';
+                        hasResults = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Mostrar/ocultar mensaje de no resultados
+                noResults.style.display = hasResults ? 'none' : 'block';
+            });
+
+            const printReceipt = (receiptData) => {
+                const printWindow = window.open('', '_blank');
+                let receiptHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Recibos de Préstamos</title>
+                        <style>
+                            @page {
+                                size: 240mm 11in;
+                                margin: 0;
+                            }
+                            body {
+                                font-family: "Courier New", monospace;
+                                margin: 0;
+                                padding: 0;
+                                width: 240mm;
+                                line-height: 1.2;
+                            }
+                            .receipt {
+                                width: 240mm;
+                                height: 11in;
+                                padding: 5mm;
+                                box-sizing: border-box;
+                                page-break-after: always;
+                            }
+                            .header {
+                                text-align: center;
+                                margin-bottom: 10mm;
+                            }
+                            .company-name {
+                                font-size: 14pt;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                            }
+                            .details {
+                                margin-bottom: 8mm;
+                            }
+                            .row {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 2mm;
+                                font-size: 10pt;
+                                white-space: nowrap;
+                            }
+                            .label {
+                                font-weight: bold;
+                                margin-right: 5mm;
+                            }
+                            .value {
+                                text-align: right;
+                            }
+                            @media print {
+                                html, body {
+                                    width: 240mm;
+                                    height: 11in;
+                                }
+                                .receipt {
+                                    border: none;
+                                }
+                                /* Optimizaciones para impresora matricial */
+                                * {
+                                    -webkit-print-color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>`;
+
+                printWindow.document.write(receiptHTML);
+                printWindow.document.close();
+                
+                printWindow.onload = function() {
+                    printWindow.print();
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                };
+            };
+
+            const printAllReceipts = (recibos) => {
+                const printWindow = window.open('', '_blank');
+                let receiptHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Recibos de Préstamos</title>
+                        <style>
+                            @page {
+                                size: 240mm 11in;
+                                margin: 0;
+                            }
+                            body {
+                                font-family: "Courier New", monospace;
+                                margin: 0;
+                                padding: 0;
+                                width: 240mm;
+                                line-height: 1.2;
+                            }
+                            .receipt {
+                                width: 240mm;
+                                height: 11in;
+                                padding: 5mm;
+                                box-sizing: border-box;
+                                page-break-after: always;
+                            }
+                            .header {
+                                text-align: center;
+                                margin-bottom: 10mm;
+                            }
+                            .company-name {
+                                font-size: 14pt;
+                                font-weight: bold;
+                                text-transform: uppercase;
+                            }
+                            .details {
+                                margin-bottom: 8mm;
+                            }
+                            .row {
+                                display: flex;
+                                justify-content: space-between;
+                                margin-bottom: 2mm;
+                                font-size: 10pt;
+                                white-space: nowrap;
+                            }
+                            .label {
+                                font-weight: bold;
+                                margin-right: 5mm;
+                            }
+                            .value {
+                                text-align: right;
+                            }
+                            @media print {
+                                html, body {
+                                    width: 240mm;
+                                    height: 11in;
+                                }
+                                .receipt {
+                                    border: none;
+                                }
+                                /* Optimizaciones para impresora matricial */
+                                * {
+                                    -webkit-print-color-adjust: exact !important;
+                                    print-color-adjust: exact !important;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>`;
+
+                recibos.forEach(recibo => {
+                    receiptHTML += `
+                        <div class="receipt">
+                            <div class="header">
+                                <div class="company-name">${recibo.nombreCompania}</div>
+                                <div>Tel.: ${recibo.telefonos}</div>
+                            </div>
+                            <div class="details">
+                                <div class="row">
+                                    <span class="label">Recibo:</span>
+                                    <span class="value">${recibo.recibo}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">Ruta:</span>
+                                    <span class="value">${recibo.ruta}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">Cliente:</span>
+                                    <span class="value">${recibo.cliente}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">Dirección:</span>
+                                    <span class="value">${recibo.direccion}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">Teléfono:</span>
+                                    <span class="value">${recibo.telefono}</span>
+                                </div>
+                            </div>
+                            <div class="details">
+                                <div class="row">
+                                    <span class="label">Inicio:</span>
+                                    <span class="value">${recibo.inicio}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">Final:</span>
+                                    <span class="value">${recibo.final}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">Monto Prestado:</span>
+                                    <span class="value">RD$ ${recibo.montoPrestado}</span>
+                                </div>
+                                <div class="row">
+                                    <span class="label">Pago Semanal:</span>
+                                    <span class="value">RD$ ${recibo.pagoSemanal}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                receiptHTML += `
+                    </body>
+                    </html>`;
+
+                printWindow.document.write(receiptHTML);
+                printWindow.document.close();
+                
+                printWindow.onload = function() {
+                    printWindow.print();
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                };
+            };
+
+            // Función para imprimir un recibo individual
+            const imprimirRecibo = async (prestamoId) => {
+                try {
+                    if (!prestamoId) {
+                        throw new Error('ID de préstamo no proporcionado');
+                    }
+                    const response = await fetch(`/prestamos/imprimir-recibo/${prestamoId}`);
+                    console.log(response);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Error al obtener el recibo');
+                    }
+                    const data = await response.json();
+                    printReceipt(data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al imprimir el recibo: ' + error.message);
+                }
+            };
+
+            // Función para imprimir todos los recibos
+            const imprimirTodos = async () => {
+                try {
+                    const rutaId = document.getElementById('imprimirTodos').dataset.id;
+                    if (!rutaId) {
+                        throw new Error('ID de ruta no encontrado');
+                    }
+                    const response = await fetch(`/prestamos/imprimir-todos/${rutaId}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Error al obtener los recibos');
+                    }
+                    const recibos = await response.json();
+                    if (!recibos || recibos.length === 0) {
+                        throw new Error('No hay recibos para imprimir');
+                    }
+                    printAllReceipts(recibos);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al imprimir los recibos: ' + error.message);
+                }
+            };
+
+            // Event listeners
+            document.querySelectorAll('[data-prestamo-id]').forEach(button => {
+                button.addEventListener('click', () => {
+                    imprimirRecibo(button.dataset.prestamoId);
+                });
+            });
+
+            const btnImprimirTodos = document.getElementById('imprimirTodos');
+            if (btnImprimirTodos) {
+                btnImprimirTodos.addEventListener('click', imprimirTodos);
+            }
+
+            
+        });

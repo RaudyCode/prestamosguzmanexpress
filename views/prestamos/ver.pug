@@ -1,0 +1,300 @@
+extends ../layout/dashboard
+
+block contenido
+    div(class="py-10")
+        P(class="font-bold text-grey-200 text-center bg-indigo-600 p-2 mb-4 mt-2 text-white")=ruta.nombre
+        h1(class="font-extrabold text-2xl md:text-5xl mb-4")=pagina
+
+        // Botón de regreso
+        div(class="mb-6")
+            a(href=`/prestamos/${ruta.id}` class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors")
+                svg(xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor")
+                    path(fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd")
+                span Volver a Préstamos
+
+        // Estado del Préstamo
+        div(class="bg-indigo-50 px-4 py-6 flex flex-col gap-2 rounded-md mb-5")
+            svg(class="text-indigo-400" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewbox='0 0 24 24' style=`fill: ${prestamo.retraso > 0 ? 'rgb(239, 68, 68)' : 'rgb(34, 197, 94)'};transform: ;msFilter:;`)
+                path(d='M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z')
+                path(d='M9.999 13.587 7.7 11.292l-1.412 1.416 3.713 3.705 6.706-6.706-1.414-1.414z')
+            
+            div 
+                h3.font-bold Estado del préstamo
+                if prestamo.totalApagar === prestamo.totalPagado 
+                    p.text-gray-600=`Este préstamo se encuentra totalmente Pago.`
+                else if prestamo.retraso > 0 
+                    p.text-red-600=`Este préstamo se encuentra en Atraso. El próximo pago vence el ${prestamo.fechaDeProximoPago}.`
+                else if prestamo.retraso === 0
+                    p.text-gray-600=`Este préstamo se encuentra al día. El próximo pago vence el ${prestamo.fechaDeProximoPago}.`
+                else   
+                    p.text-gray-600=`Este préstamo se encuentra actualmente activo y al día. El próximo pago vence el ${prestamo.fechaDeProximoPago}.`
+
+            // Botones de Acción
+            div(class="flex flex-col md:flex-row gap-4 items-center mt-2")
+                a(href=`/prestamos/pagar/${ruta.id}/${prestamo.id}` class=prestamo.totalApagar===prestamo.totalPagado ? 'cursor-default pointer-events-none w-full md:w-auto py-2 text-center px-10 text-xs leading-5 font-semibold rounded-sm bg-green-500 hover:bg-green-600 text-white opacity-50' : 'cursor-pointer pointer-events-auto w-full md:w-auto py-2 text-center px-10 text-xs leading-5 font-semibold rounded-sm bg-green-500 hover:bg-green-600 text-white opacity-100') Pagar
+                
+                form(class="m-0 w-full md:w-auto" action=`/prestamo/retraso/${prestamo.id}` class="inline-block")
+                    input(type="hidden" name="_csrf" value=csrfToken)
+                    button(type="submit" class=prestamo.totalApagar===prestamo.totalPagado ? 'cursor-default pointer-events-none w-full md:w-auto py-2 text-center px-10 text-xs leading-5 font-semibold rounded-sm bg-red-500 hover:bg-red-600 text-white opacity-50' : 'cursor-pointer pointer-events-auto w-full md:w-auto py-2 text-center px-10 text-xs leading-5 font-semibold rounded-sm bg-red-500 hover:bg-red-600 text-white opacity-100') Retraso
+
+                a(href=`/prestamos/renovar/${prestamo.id}` class="w-full md:w-auto py-2 text-center cursor-pointer px-10 text-xs leading-5 font-semibold rounded-sm bg-blue-500 hover:bg-blue-600 text-white") Renovar
+                                                                    
+                a(href=`/prestamos/editar/${prestamo.id}` class=prestamo.totalApagar===prestamo.totalPagado ? 'cursor-default pointer-events-none w-full md:w-auto py-2 text-center px-10 text-xs leading-5 font-semibold rounded-sm bg-indigo-500 hover:bg-indigo-600 text-white opacity-50' : 'cursor-pointer pointer-events-auto w-full md:w-auto py-2 text-center px-10 text-xs leading-5 font-semibold rounded-sm bg-indigo-500 hover:bg-indigo-600 text-white opacity-100') Editar 
+                
+                a(href=`/prestamos/recibo/${prestamo.id}` class="w-full md:w-auto py-2 text-center cursor-pointer px-10 text-xs leading-5 font-semibold rounded-sm bg-yellow-500 hover:bg-yellow-600 text-white") Descargar Ultimo Recivo
+
+        // Información del Préstamo
+        div(class="bg-white shadow-lg rounded-lg overflow-hidden mb-8")
+            div(class="bg-indigo-600 px-6 py-4")
+                h2(class="text-xl font-bold text-white") Información del Préstamo
+            div(class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6")
+                div
+                    h3(class="text-sm font-semibold text-gray-500 uppercase mb-2") Detalles del Préstamo
+                    div(class="space-y-4")
+                        div
+                            label(class="block text-sm font-medium text-gray-700") ID
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.id
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Monto del Préstamo
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.monto)
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Cuota Semanal
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.cuota)
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Plazo
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= `${prestamo.plazo} semanas`
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Semana Actual
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.semana
+                div
+                    h3(class="text-sm font-semibold text-gray-500 uppercase mb-2") Resumen de Pago
+                    div(class="space-y-4")
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Total a Pagar
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.totalApagar)
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Total Pagado
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.totalPagado)
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Total en Abono
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.abonado)
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Total en Atrasos
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.retraso)
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Semanas Atrasadas
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.semanasAtrasadas
+
+        // Información del Cliente
+        div(class="bg-white shadow-lg rounded-lg overflow-hidden mb-8")
+            div(class="bg-indigo-600 px-6 py-4")
+                h2(class="text-xl font-bold text-white") Información del Cliente
+            div(class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6")
+                div
+                    h3(class="text-sm font-semibold text-gray-500 uppercase mb-2") Datos Personales
+                    div(class="space-y-4")
+                        div
+                            label(class="block text-sm font-medium text-gray-700") ID Cliente
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.cliente.idCliente
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Nombre Completo
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.cliente.nombre
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Cédula
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.cliente.cedula
+                div
+                    h3(class="text-sm font-semibold text-gray-500 uppercase mb-2") Información de Contacto
+                    div(class="space-y-4")
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Teléfono
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.cliente.telefono
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Correo Electrónico
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.cliente.email || 'No especificado'
+                        div
+                            label(class="block text-sm font-medium text-gray-700") Dirección
+                            p(class="mt-1 text-lg font-semibold text-gray-900")= prestamo.cliente.direccion
+                div(class="col-span-2")
+                    a(href=`/cliente/ver/${ruta.id}/${prestamo.cliente.id}` class="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 font-bold rounded-lg transition-colors")
+                        svg(xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor")
+                            path(fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd")
+                        span Ver Perfil del Cliente
+
+        // Historial de Pagos
+        div(class="bg-white shadow-lg rounded-lg overflow-hidden")
+            div(class="bg-indigo-600 px-6 py-4 flex justify-between items-center")
+                h2(class="text-xl font-bold text-white") Historial de Pagos
+                if prestamo.estado === 'activo'
+                    button#imprimirRecibos(class="inline-flex items-center px-4 py-2 bg-white text-indigo-600 hover:bg-gray-100 font-bold rounded-lg transition-colors" data-id=`${prestamo.id}`)
+                        svg(xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor")
+                            path(fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd")
+                        span Imprimir Recibos
+
+            div(class="overflow-x-auto")
+                table(class="w-full table-auto")
+                    thead(class="bg-gray-50")
+                        tr
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider")
+                                svg(xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewbox='0 0 24 24' style='fill: rgb(34, 197, 94);transform: ;msFilter:;')
+                                    path(d='M21 5c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5zM5 19V5h14l.002 14H5z')
+                                    path(d='M7 7h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6z')
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") Pago
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") Fecha
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") Estado
+                            th(class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider") Acciones
+                    tbody(id="resultados-pagos")
+                        if prestamo.pagos && prestamo.pagos.length
+                            each pago in prestamo.pagos
+                                tr(class="hover:bg-gray-50")
+                                    td(class="px-6 py-4 whitespace-nowrap")
+                                        svg(class="text-indigo-400" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewbox='0 0 24 24' style=`fill: ${pago.estadoPago === 'atrasado' ? 'rgb(239, 68, 68)' : pago.estadoPago === 'en mora' ? 'rgb(234, 179, 8)' : 'rgb(34, 197, 94)'};transform: ;msFilter:;`)
+                                            path(d='M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z')
+                                            path(d='M9.999 13.587 7.7 11.292l-1.412 1.416 3.713 3.705 6.706-6.706-1.414-1.414z')
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-gray-900")= new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(pago.totalPagado)
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-gray-500")= pago.fecha
+                                    td(class="px-6 py-4 whitespace-nowrap")
+                                        span(class=`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${pago.estadoPago === 'pagado' ? 'bg-green-100 text-green-800' : pago.estadoPago === 'atrasado' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`)= pago.estadoPago
+                                    td(class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium")
+                                        a(href=`/prestamos/ver/${ruta.id}/${prestamo.id}` class="text-indigo-600 hover:text-indigo-900 mr-3") Ver
+                                        a(href=`/prestamos/recibo/${pago.id}` class="text-yellow-600 hover:text-yellow-900") Imprimir
+                        else
+                            tr
+                                td(class="px-6 py-4 text-center" colspan="5") No hay pagos registrados para este préstamo
+
+            // Paginación
+            if paginacion && paginacion.totalPaginas > 1
+                div(class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6")
+                    div(class="flex-1 flex justify-between sm:hidden")
+                        button(class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="prevPageMobile") Anterior
+                        button(class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="nextPageMobile") Siguiente
+                    div(class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between")
+                        div
+                            p(class="text-sm text-gray-700")
+                                span Mostrando 
+                                span(class="font-medium") #{(paginacion.pagina - 1) * paginacion.limite + 1}
+                                span  a 
+                                span(class="font-medium") #{Math.min(paginacion.pagina * paginacion.limite, paginacion.totalPagos)}
+                                span  de 
+                                span(class="font-medium") #{paginacion.totalPagos}
+                                span  resultados
+                        div(class="flex justify-center mt-4")
+                            nav(class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination")
+                                - var i = 1
+                                while i <= paginacion.totalPaginas
+                                    button(class=`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${paginacion.pagina === i ? 'text-indigo-600 border-indigo-500' : 'text-gray-700 hover:bg-gray-50'}` data-page=i)= i++
+
+block scripts
+    script.
+        let currentPage = #{paginacion ? paginacion.pagina : 1};
+        const prestamoId = '#{prestamo.id}';
+        const rutaId = '#{ruta.id}';
+        
+        // Función para cargar los pagos
+        async function cargarPagos(page = 1) {
+            try {
+                const url = `/prestamos/${rutaId}/${prestamoId}/pagos?pagina=${page}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) throw new Error(data.error);
+                
+                actualizarTablaPagos(data.pagos);
+                actualizarPaginacion(data.paginacion);
+                
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Función para actualizar la tabla de pagos
+        function actualizarTablaPagos(pagos) {
+            const tbody = document.getElementById('resultados-pagos');
+            tbody.innerHTML = '';
+
+            if (pagos && pagos.length > 0) {
+                pagos.forEach(pago => {
+                    const estadoClass = pago.estadoPago === 'pagado' ? 'bg-green-100 text-green-800' : 
+                                      pago.estadoPago === 'atrasado' ? 'bg-red-100 text-red-800' : 
+                                      'bg-yellow-100 text-yellow-800';
+                    
+                    const estadoColor = pago.estadoPago === 'atrasado' ? 'rgb(239, 68, 68)' : 
+                                      pago.estadoPago === 'en mora' ? 'rgb(234, 179, 8)' : 
+                                      'rgb(34, 197, 94)';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <svg class="text-indigo-400" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewbox='0 0 24 24' style='fill: ${estadoColor};transform: ;msFilter:;'>
+                                    <path d='M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z'/>
+                                    <path d='M9.999 13.587 7.7 11.292l-1.412 1.416 3.713 3.705 6.706-6.706-1.414-1.414z'/>
+                                </svg>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(pago.totalPagado)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${pago.fecha}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${estadoClass}">${pago.estadoPago}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <a href="/prestamos/ver/${rutaId}/${prestamoId}" class="text-indigo-600 hover:text-indigo-900 mr-3">Ver</a>
+                                <a href="/prestamos/recibo/${pago.id}" class="text-yellow-600 hover:text-yellow-900">Imprimir</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td class="px-6 py-4 text-center" colspan="5">No hay pagos registrados para este préstamo</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Función para actualizar la paginación
+        function actualizarPaginacion(paginacion) {
+            const nav = document.querySelector('nav[aria-label="Pagination"]');
+            if (!nav) return;
+
+            nav.innerHTML = '';
+            for (let i = 1; i <= paginacion.totalPaginas; i++) {
+                const button = document.createElement('button');
+                button.className = `relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${paginacion.pagina === i ? 'text-indigo-600 border-indigo-500' : 'text-gray-700 hover:bg-gray-50'}`;
+                button.textContent = i;
+                button.dataset.page = i;
+                button.onclick = () => {
+                    currentPage = i;
+                    cargarPagos(i);
+                };
+                nav.appendChild(button);
+            }
+        }
+
+        // Event Listeners para paginación móvil
+        document.getElementById('prevPageMobile')?.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                cargarPagos(currentPage);
+            }
+        });
+
+        document.getElementById('nextPageMobile')?.addEventListener('click', () => {
+            const totalPages = document.querySelectorAll('nav[aria-label="Pagination"] button').length;
+            if (currentPage < totalPages) {
+                currentPage++;
+                cargarPagos(currentPage);
+            }
+        });
+
+        // Inicializar botones de paginación
+        document.querySelectorAll('nav[aria-label="Pagination"] button').forEach(button => {
+            button.addEventListener('click', () => {
+                currentPage = parseInt(button.dataset.page);
+                cargarPagos(currentPage);
+            });
+        });
+
+        // Event listener para imprimir recibos
+        document.getElementById('imprimirRecibos')?.addEventListener('click', function() {
+            const prestamoId = this.dataset.id;
+            window.open(`/prestamos/recibos/${prestamoId}`, '_blank');
+        }); 

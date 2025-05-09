@@ -1,0 +1,326 @@
+extends ../layout/dashboard
+
+block contenido
+    P(class="font-bold text-grey-200 text-center bg-indigo-600 p-2 mb-4 mt-2 text-white")=ruta.nombre
+    h1(class="font-extrabold text-2xl md:text-5xl mb-4")=pagina
+
+    if errores
+        div(class="max-w-md mx-auto my-10")
+            each error in errores
+                p.bg-red-600.text-white.uppercase.text-xs.text-center.p-2.mb-1.font-bold= error.msg
+
+    // Formulario de Creación
+    div(class="bg-white shadow-lg rounded-lg overflow-hidden")
+        div(class="bg-indigo-600 px-6 py-4")
+            h2(class="text-xl font-bold text-white") Crear Nuevo Préstamo
+        div(class="p-6")
+            form.space-y-5(method="POST" action=`/prestamos/${id}` novalidate class="max-w-lg")
+                input(type="hidden" name="_csrf" value=csrfToken)
+
+                // Campo para cliente
+                div(class="z-0")
+                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for='cliente') Cliente:
+                    div(class="flex gap-1 w-full px-3 py-2 border border-gray-300 rounded-md justify-center items-center")
+                        select#cliente(name='cliente' class='js-example-basic-single w-full px-3 py-2 border-none placeholder-gray-400 focus:outline-none' style='width: 100%')
+                            option(value='').block.text-sm.uppercase.text-gray-500.mb-2.font-bold Selecciona un cliente
+                            each cliente in clientes
+                                option.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(value=cliente.id)= cliente.nombre
+
+                // Campo para el monto
+                div
+                    label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="monto") Monto
+                    div(class="flex gap-1 w-full px-3 py-2 border border-gray-300 rounded-md justify-center items-center")
+                        input(id="monto" class="w-full px-3 py-2 border-none placeholder-gray-400 focus:outline-none" placeholder="Monto del Prestamo" type="number" name="monto" required)
+
+                // Botón para enviar el formulario
+                div(class="flex justify-end")
+                    input(class="max-w-40 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 cursor-pointer rounded-lg transition-colors" type="submit" value="Crear Préstamo")
+
+    div.mt-6
+        
+        h2(class="text-2xl font-bold text-gray-800 mb-6") Lista de Préstamos
+        
+        // Formulario de búsqueda
+        div(class="bg-white shadow rounded-lg mt-10")
+            form(class="p-4" id="searchForm")
+                input(
+                    type="text"
+                    name="termino"
+                    placeholder="Buscar cliente Por Id o Nombre"
+                    id="searchInput"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                )
+
+        // Tabla de préstamos
+        div(class="bg-white shadow rounded-lg mt-5")
+            div(class="overflow-x-auto")
+                table(class="w-full table-auto")
+                    thead(class="bg-gray-50")
+                        tr
+                            th(class="px-4 py-2 text-left") Monto
+                            th(class="px-4 py-2 text-left") Cuota
+                            th(class="px-4 py-2 text-left") Total a Pagar
+                            th(class="px-4 py-2 text-left") Total Pagado
+                            th(class="px-4 py-2 text-left") Inicio
+                            th(class="px-4 py-2 text-left") Final
+                            th(class="px-4 py-2 text-left") Semana
+                            th(class="px-4 py-2 text-left") Cliente
+                            th(class="px-4 py-2 text-left") Estado
+                            th(class="px-4 py-2 text-center") Acciones
+                    tbody(id="resultados-busqueda")
+                        if prestamos && prestamos.length
+                            each prestamo in prestamos
+                                tr(class="border-b hover:bg-gray-100")
+                                    td(class="px-4 py-2")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(prestamo.monto)
+                                    td(class="px-4 py-2")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(prestamo.cuota)
+                                    td(class="px-4 py-2")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(prestamo.totalApagar)
+                                    td(class="px-4 py-2")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(prestamo.totalPagado)
+                                    td(class="px-4 py-2")= prestamo.fechaInicio
+                                    td(class="px-4 py-2")= prestamo.fechaDeCaducidad
+                                    td(class="px-4 py-2")= prestamo.semana
+                                    td(class="px-4 py-2")= prestamo.cliente.nombre
+                                    td(class="px-4 py-2")
+                                        p(class=`${prestamo.estado === 'activo' ? 'bg-yellow-50 text-yellow-600' : prestamo.estado === 'moroso' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'} text-center cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-semibold rounded-sm`)= prestamo.estado
+                                    td(class="px-4 py-2 flex justify-center gap-2")
+                                        a(href=`/prestamos/ver/${ruta.id}/${prestamo.id}` class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-xs font-bold text-white") Ver
+                        else
+                            tr
+                                td(class="px-4 py-2 text-center" colspan="10") No hay préstamos registrados
+
+        // Paginación
+        if paginacion && paginacion.totalPaginas > 1
+            div(class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6")
+                div(class="flex-1 flex justify-between sm:hidden")
+                    button(class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="prevPageMobile") Anterior
+                    button(class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="nextPageMobile") Siguiente
+                div(class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between")
+                    div
+                        p(class="text-sm text-gray-700")
+                            span Mostrando 
+                            span(class="font-medium") #{(paginacion.pagina - 1) * paginacion.limite + 1}
+                            span  a 
+                            span(class="font-medium") #{Math.min(paginacion.pagina * paginacion.limite, paginacion.totalPrestamos)}
+                            span  de 
+                            span(class="font-medium") #{paginacion.totalPrestamos}
+                            span  resultados
+                    div(class="flex justify-center mt-4")
+                        nav(class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination")
+                            - var i = 1
+                            while i <= paginacion.totalPaginas
+                                button(class=`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${paginacion.pagina === i ? 'text-indigo-600 border-indigo-500' : 'text-gray-700 hover:bg-gray-50'}` data-page=i)= i++
+
+    section(class="mt-10")
+        h2(class="text-2xl font-bold text-gray-800 mb-6") Estadísticas de Préstamos
+
+        div(class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6")
+            // Total de Préstamos
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Total de Préstamos
+                            p(class="text-2xl font-bold text-gray-900")=prestamos.length
+                        div(class="p-3 bg-indigo-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-indigo-600" viewBox='0 0 24 24' fill='currentColor')
+                                path(d='M21 5c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5zM5 19V5h14l.002 14H5z')
+                                path(d='M7 7h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6z')
+                
+            // Préstamos Activos
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Préstamos Activos
+                            p(class="text-2xl font-bold text-gray-900")=TotalPrestamosActivos.length
+                        div(class="p-3 bg-green-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-green-600" viewbox='0 0 24 24' fill='currentColor')
+                                path(d='M21 5c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5zM5 19V5h14l.002 14H5z')
+                                path(d='M7 7h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6z')
+                
+            // Monto Total
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Monto Total
+                            p(class="text-2xl font-bold text-gray-900")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(totalMonto)
+                        div(class="p-3 bg-purple-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-purple-600" viewbox='0 0 24 24' fill='currentColor')
+                                path(d='M21 4H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-1 11a3 3 0 0 0-3 3H7a3 3 0 0 0-3-3V9a3 3 0 0 0 3-3h10a3 3 0 0 0 3 3v6z')
+                                path(d='M12 8c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2z')
+                
+            // Total en Atrasos
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Total en Atrasos
+                            p(class="text-2xl font-bold text-gray-900")=totalAtrasos.length
+                        div(class="p-3 bg-red-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-red-600" viewbox='0 0 24 24' fill='currentColor')
+                                path(d='M21 5c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5zM5 19V5h14l.002 14H5z')
+                                path(d='M7 7h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6z')
+                
+            // Total Pagados
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Total Pagados
+                            p(class="text-2xl font-bold text-gray-900")=totalPagados.length
+                        div(class="p-3 bg-emerald-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-emerald-600" viewbox='0 0 24 24' fill='currentColor')
+                                path(d='M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z')
+                                path(d='M9.999 13.587 7.7 11.292l-1.412 1.416 3.713 3.705 6.706-6.706-1.414-1.414z')
+                
+            // Atrasados esta Semana
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Atrasados esta Semana
+                            p(class="text-2xl font-bold text-gray-900")=totalAtrasadosSemana
+                        div(class="p-3 bg-red-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-red-600" viewbox='0 0 24 24' fill='currentColor')
+                                path(d='M21 5c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5zM5 19V5h14l.002 14H5z')
+                                path(d='M7 7h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6zm-4 4h1.998v2H7zm4 0h6v2h-6z')
+                
+            // Pagados esta Semana
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Pagados esta Semana
+                            p(class="text-2xl font-bold text-gray-900")=totalPagadosSemana
+                        div(class="p-3 bg-emerald-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-emerald-600" viewbox='0 0 24 24' fill='currentColor')
+                                path(d='M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z')
+                                path(d='M9.999 13.587 7.7 11.292l-1.412 1.416 3.713 3.705 6.706-6.706-1.414-1.414z')
+
+            // Capital Disponible
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+                div(class="p-6")
+                    div(class="flex items-center justify-between")
+                        div
+                            p(class="text-sm font-medium text-gray-500") Capital Disponible
+                            p(class="text-2xl font-bold text-gray-900")=new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3,}).format(ruta.capital - totalMonto)
+                        div(class="p-3 bg-blue-50 rounded-full")
+                            svg(xmlns='http://www.w3.org/2000/svg' class="h-8 w-8 text-blue-600" viewbox='0 0 24 24' fill='currentColor')
+                                path(d='M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z')
+                                path(d='M12 6c-3.309 0-6 2.691-6 6s2.691 6 6 6 6-2.691 6-6-2.691-6-6-6zm0 10c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4z')
+
+
+block scripts
+    script(src="/js/select.js")
+    script.
+        let currentPage = #{paginacion ? paginacion.pagina : 1};
+        const rutaId = '#{ruta.id}';
+        
+        // Función para cargar los préstamos
+        async function cargarPrestamos(page = 1, searchTerm = '') {
+            try {
+                const url = `/prestamos/${rutaId}/buscar?pagina=${page}${searchTerm ? `&termino=${searchTerm}` : ''}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) throw new Error(data.error);
+                
+                actualizarTablaPrestamos(data.prestamos);
+                actualizarPaginacion(data.paginacion);
+                
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Función para actualizar la tabla de préstamos
+        function actualizarTablaPrestamos(prestamos) {
+            const tbody = document.getElementById('resultados-busqueda');
+            tbody.innerHTML = '';
+
+            if (prestamos && prestamos.length > 0) {
+                prestamos.forEach(prestamo => {
+                    tbody.innerHTML += `
+                        <tr class="border-b hover:bg-gray-100">
+                            <td class="px-4 py-2">${new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.monto)}</td>
+                            <td class="px-4 py-2">${new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.cuota)}</td>
+                            <td class="px-4 py-2">${new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.totalApagar)}</td>
+                            <td class="px-4 py-2">${new Intl.NumberFormat("es-DO", {maximumFractionDigits: 3}).format(prestamo.totalPagado)}</td>
+                            <td class="px-4 py-2">${prestamo.fechaInicio}</td>
+                            <td class="px-4 py-2">${prestamo.fechaDeCaducidad}</td>
+                            <td class="px-4 py-2">${prestamo.semana}</td>
+                            <td class="px-4 py-2">${prestamo.cliente.nombre}</td>
+                            <td class="px-4 py-2">
+                                <p class="${prestamo.estado === 'activo' ? 'bg-yellow-50 text-yellow-600' : 'bg-green-50 text-green-600'} text-center cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-semibold rounded-sm">${prestamo.estado}</p>
+                            </td>
+                            <td class="px-4 py-2 flex justify-center gap-2">
+                                <a href="/prestamos/ver/${rutaId}/${prestamo.id}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded text-xs font-bold text-white">Ver</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td class="px-4 py-2 text-center" colspan="10">No se encontraron préstamos</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Función para actualizar la paginación
+        function actualizarPaginacion(paginacion) {
+            const nav = document.querySelector('nav[aria-label="Pagination"]');
+            if (!nav) return;
+
+            nav.innerHTML = '';
+            for (let i = 1; i <= paginacion.totalPaginas; i++) {
+                const button = document.createElement('button');
+                button.className = `relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${paginacion.pagina === i ? 'text-indigo-600 border-indigo-500' : 'text-gray-700 hover:bg-gray-50'}`;
+                button.textContent = i;
+                button.dataset.page = i;
+                button.onclick = () => {
+                    currentPage = i;
+                    const searchTerm = document.getElementById('searchInput').value;
+                    cargarPrestamos(i, searchTerm);
+                };
+                nav.appendChild(button);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value;
+            currentPage = 1; // Reset to first page on new search
+            cargarPrestamos(currentPage, searchTerm);
+        });
+
+        // Mobile pagination buttons
+        document.getElementById('prevPageMobile')?.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                const searchTerm = document.getElementById('searchInput').value;
+                cargarPrestamos(currentPage, searchTerm);
+            }
+        });
+
+        document.getElementById('nextPageMobile')?.addEventListener('click', () => {
+            const totalPages = document.querySelectorAll('nav[aria-label="Pagination"] button').length;
+            if (currentPage < totalPages) {
+                currentPage++;
+                const searchTerm = document.getElementById('searchInput').value;
+                cargarPrestamos(currentPage, searchTerm);
+            }
+        });
+
+        // Initialize pagination buttons
+        document.querySelectorAll('nav[aria-label="Pagination"] button').forEach(button => {
+            button.addEventListener('click', () => {
+                currentPage = parseInt(button.dataset.page);
+                const searchTerm = document.getElementById('searchInput').value;
+                cargarPrestamos(currentPage, searchTerm);
+            });
+        });
+
+
+

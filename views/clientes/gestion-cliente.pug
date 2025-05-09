@@ -1,0 +1,242 @@
+extends ../layout/dashboard
+
+block contenido
+    P(class="font-bold text-grey-200 text-center bg-indigo-600 p-2 mb-4 mt-2 text-white")=ruta.nombre
+    h1(class="font-extrabold text-2xl md:text-5xl mb-4")=pagina
+
+    if errores
+        div(class="max-w-md mx-auto my-10")
+            each error in errores
+                p.bg-red-600.text-white.uppercase.text-xs.text-center.p-2.mb-1.font-bold= error.msg
+
+    // Formulario de Creación
+    div(class="bg-white shadow-lg rounded-lg overflow-hidden mb-10")
+        div(class="bg-indigo-600 px-6 py-4")
+            h2(class="text-xl font-bold text-white") Crear Nuevo Cliente
+        div(class="p-6")
+            form.space-y-5(method="POST" action=`/clientes/${id}` novalidate class="max-w-lg")
+                input(type="hidden" name="_csrf" value=csrfToken)
+
+                // Campo para el nombre
+                div
+                    label(class="block text-sm uppercase text-gray-500 mb-2 font-bold" for="nombre") Nombre Completo
+                    div(class="flex gap-1 w-full px-3 py-2 border border-gray-300 rounded-md justify-center items-center")
+                        input(id="nombre" class="w-full px-3 py-2 border-none placeholder-gray-400 focus:outline-none" placeholder="Nombre Completo" type="text" name="nombre" required)
+
+                // Campo para la cédula de identidad
+                div
+                    label(class="block text-sm uppercase text-gray-500 mb-2 font-bold" for="cedula") Cédula de Identidad
+                    div(class="flex gap-1 w-full px-3 py-2 border border-gray-300 rounded-md justify-center items-center")
+                        input(id="cedula" class="w-full px-3 py-2 border-none placeholder-gray-400 focus:outline-none" placeholder="Cédula de Identidad" type="text" name="cedula" required)
+
+                // Campo para el teléfono
+                div
+                    label(class="block text-sm uppercase text-gray-500 mb-2 font-bold" for="telefono") Teléfono
+                    div(class="flex gap-1 w-full px-3 py-2 border border-gray-300 rounded-md justify-center items-center")
+                        input(id="telefono" class="w-full px-3 py-2 border-none placeholder-gray-400 focus:outline-none" placeholder="Teléfono" type="tel" name="telefono" required)
+
+                // Campo para la dirección
+                div
+                    label(class="block text-sm uppercase text-gray-500 mb-2 font-bold" for="direccion") Dirección
+                    div(class="flex gap-1 w-full px-3 py-2 border border-gray-300 rounded-md justify-center items-center")
+                        input(id="direccion" class="w-full px-3 py-2 border-none placeholder-gray-400 focus:outline-none" placeholder="Dirección" type="text" name="direccion" required)
+
+                // Botón para enviar el formulario
+                div(class="flex justify-end")
+                    input(class="max-w-40 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 cursor-pointer rounded-lg transition-colors" type="submit" value="Guardar Cliente")
+
+    // Sección de Búsqueda y Lista
+    div(class="bg-white shadow-lg rounded-lg overflow-hidden")
+        div(class="bg-indigo-600 px-6 py-4")
+            h2(class="text-xl font-bold text-white") Lista de Clientes
+        div(class="p-6")
+            // Formulario de búsqueda
+            form(class="mb-6" id="searchForm")
+                div(class="relative")
+                    input(
+                        type="text"
+                        name="termino"
+                        placeholder="Buscar cliente por ID, Nombre o Cédula"
+                        id="searchInput"
+                        class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    )
+                    div(class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none")
+                        svg(class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor")
+                            path(fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd")
+
+            // Tabla de clientes
+            div(class="overflow-x-auto")
+                table(class="w-full table-auto")
+                    thead(class="bg-gray-50")
+                        tr
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") ID
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") Nombre
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") Cédula
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") Teléfono
+                            th(class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider") Dirección
+                            th(class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider") Acciones
+                    tbody(id="clientesTableBody" class="bg-white divide-y divide-gray-200")
+                        if clientes && clientes.length
+                            each cliente in clientes
+                                tr(class="hover:bg-gray-50")
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-gray-900")= cliente.idCliente
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-gray-900")= cliente.nombre
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-gray-900")= cliente.cedula
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-gray-900")= cliente.telefono
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-gray-900")= cliente.direccion
+                                    td(class="px-6 py-4 whitespace-nowrap text-sm text-center")
+                                        div(class="flex justify-center space-x-2")
+                                            a(href=`/cliente/editar/${cliente.id}` class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500")
+                                                svg(class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor")
+                                                    path(d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z")
+                                                span Editar
+                                            a(href=`/cliente/ver/${id}/${cliente.id}` class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500")
+                                                svg(class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor")
+                                                    path(d="M10 12a2 2 0 100-4 2 2 0 000 4z")
+                                                    path(fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd")
+                                                span Ver
+                        else
+                            tr
+                                td(class="px-6 py-4 text-center text-sm text-gray-500" colspan="6") No hay clientes registrados
+
+            // Paginación
+            if paginacion && paginacion.totalPaginas > 1
+                div(class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6")
+                    div(class="flex-1 flex justify-between sm:hidden")
+                        button(class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="prevPageMobile") Anterior
+                        button(class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="nextPageMobile") Siguiente
+                    div(class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between")
+                        div
+                            p(class="text-sm text-gray-700")
+                                span Mostrando 
+                                span(class="font-medium") #{(paginacion.pagina - 1) * paginacion.limite + 1}
+                                span  a 
+                                span(class="font-medium") #{Math.min(paginacion.pagina * paginacion.limite, paginacion.totalClientes)}
+                                span  de 
+                                span(class="font-medium") #{paginacion.totalClientes}
+                                span  resultados
+                        div(class="flex justify-center mt-4")
+                            nav(class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination")
+                                - var i = 1
+                                while i <= paginacion.totalPaginas
+                                    button(class=`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${paginacion.pagina === i ? 'text-indigo-600 border-indigo-500' : 'text-gray-700 hover:bg-gray-50'}` data-page=i)= i++
+
+block scripts
+    script.
+        let currentPage = #{paginacion ? paginacion.pagina : 1};
+        const rutaId = '#{id}';
+        
+        // Función para cargar los clientes
+        async function cargarClientes(page = 1, searchTerm = '') {
+            try {
+                const url = `/clientes/${rutaId}/buscar?pagina=${page}${searchTerm ? `&termino=${searchTerm}` : ''}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) throw new Error(data.error);
+                
+                actualizarTablaClientes(data.clientes);
+                actualizarPaginacion(data.paginacion);
+                
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Función para actualizar la tabla de clientes
+        function actualizarTablaClientes(clientes) {
+            const tbody = document.getElementById('clientesTableBody');
+            tbody.innerHTML = '';
+
+            if (clientes && clientes.length > 0) {
+                clientes.forEach(cliente => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cliente.idCliente}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cliente.nombre}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cliente.cedula}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cliente.telefono}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cliente.direccion}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <a href="/cliente/editar/${cliente.id}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                                        </svg>
+                                        <span>Editar</span>
+                                    </a>
+                                    <a href="/cliente/ver/${rutaId}/${cliente.id}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                                        <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span>Ver</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td class="px-6 py-4 text-center text-sm text-gray-500" colspan="6">No se encontraron clientes</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Función para actualizar la paginación
+        function actualizarPaginacion(paginacion) {
+            const nav = document.querySelector('nav[aria-label="Pagination"]');
+            if (!nav) return;
+
+            nav.innerHTML = '';
+            for (let i = 1; i <= paginacion.totalPaginas; i++) {
+                const button = document.createElement('button');
+                button.className = `relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${paginacion.pagina === i ? 'text-indigo-600 border-indigo-500' : 'text-gray-700 hover:bg-gray-50'}`;
+                button.textContent = i;
+                button.dataset.page = i;
+                button.onclick = () => {
+                    currentPage = i;
+                    const searchTerm = document.getElementById('searchInput').value;
+                    cargarClientes(i, searchTerm);
+                };
+                nav.appendChild(button);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value;
+            currentPage = 1; // Reset to first page on new search
+            cargarClientes(currentPage, searchTerm);
+        });
+
+        // Mobile pagination buttons
+        document.getElementById('prevPageMobile')?.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                const searchTerm = document.getElementById('searchInput').value;
+                cargarClientes(currentPage, searchTerm);
+            }
+        });
+
+        document.getElementById('nextPageMobile')?.addEventListener('click', () => {
+            const totalPages = document.querySelectorAll('nav[aria-label="Pagination"] button').length;
+            if (currentPage < totalPages) {
+                currentPage++;
+                const searchTerm = document.getElementById('searchInput').value;
+                cargarClientes(currentPage, searchTerm);
+            }
+        });
+
+        // Initialize pagination buttons
+        document.querySelectorAll('nav[aria-label="Pagination"] button').forEach(button => {
+            button.addEventListener('click', () => {
+                currentPage = parseInt(button.dataset.page);
+                const searchTerm = document.getElementById('searchInput').value;
+                cargarClientes(currentPage, searchTerm);
+            });
+        });
+                        

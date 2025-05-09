@@ -1,0 +1,95 @@
+doctype html
+html(lang="es")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        link(rel='icon' type='image/x-icon' href='/img/logo.svg')
+        title= `Presta G | ${pagina}`
+
+        <!-- En el archivo de plantilla principal o en la sección 'head' de tu Pug -->
+        link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css')
+        link(rel="stylesheet", href="/css/app.css")
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js')
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js')
+        link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css")
+
+    body(class="bg-white inline-block w-full")
+        div(class="flex h-full w-full")
+            // Sidebar
+            aside(class="z-10 bottom-0 bg-indigo-600 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full transition duration-200 ease-in-out" id="sidebar")
+                // Botón de menú móvil
+                button#menu-btn2(class="text-white hover:text-indigo-200 transition-colors")
+                    svg.h-6.w-6(xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 24 24' stroke='currentColor')
+                        path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 12h16m-7 6h7')
+
+                // Logo y Título
+                a.flex.items-center.space-x-2.px-4(href=`/rutas/admin/${ruta.id}` class="hover:opacity-80 transition-opacity")
+                    span.text-2xl.font-extrabold Dashboard
+
+                // Navegación
+                nav(class="space-y-2")
+                    a.block.px-4.rounded.transition.duration-200(href=`/rutas` class='py-2.5 hover:bg-indigo-500 flex items-center gap-2')
+                        svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z")
+                        span Rutas
+
+                    a.block.px-4.rounded.transition.duration-200(href=`/clientes/${ruta.id}` class='py-2.5 hover:bg-indigo-500 flex items-center gap-2')
+                        svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z")
+                        span Gestión de Cliente
+
+                    a.block.px-4.rounded.transition.duration-200(href=`/prestamos/${ruta.id}` class='py-2.5 hover:bg-indigo-500 flex items-center gap-2')
+                        svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
+                        span Gestión de Préstamos
+
+                    
+
+                    a.block.px-4.rounded.transition.duration-200(href=`/prestamos/recibos/${ruta.id}` class='py-2.5 hover:bg-indigo-500 flex items-center gap-2')
+                        svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z")
+                        span Impreción de Recibos
+
+                    a.block.px-4.rounded.transition.duration-200(href=`/rutas/configuracion/${ruta.id}` class='py-2.5 hover:bg-indigo-500 flex items-center gap-2')
+                        svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z")
+                        span Configuración
+
+            // Contenido Principal
+            .flex-1.flex.flex-col.w-full
+                // Barra superior
+                header(class="bg-white shadow-md flex justify-between items-center px-4 gap-6")
+                    // Logo
+                    div(class="max-w-36 md:max-w-48 py-5")
+                        img(src="/img/logo.svg", alt="Logo Presta G" class="h-full w-auto")
+
+                    // Usuario y Cerrar Sesión
+                    div(class="gap-2").flex.justify-between.items-center
+                        div(class="flex justify-between items-center gap-2")
+                            svg(class="hidden md:block" xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewbox='0 0 24 24' style='fill: rgba(21, 128, 61, 1);transform: ;msFilter:;')
+                                path(d='M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3 3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z')
+                            p(class="px-2 py-1 text-gray-700")=usuarioName
+
+                        // Botón de Cerrar Sesión
+                        form(action="/auth/cerrar-sesion" method="POST")
+                            input(type="hidden" name="_csrf" value=csrfToken)
+                            button(type="submit" class="bg-indigo-500 py-1 px-4 rounded-lg cursor-pointer flex items-center gap-2 text-white hover:bg-indigo-600 transition-colors")
+                                svg(xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(255, 255, 255, 1);")
+                                    path(d="M19.002 3h-14c-1.103 0-2 .897-2 2v4h2V5h14v14h-14v-4h-2v4c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5c0-1.103-.898-2-2-2z")
+                                    path(d="m11 16 5-4-5-4v3.001H3v2h8z")
+                                span Cerrar Sesión
+
+                // Contenido Principal
+                main(class="lg:px-40 p-6 h-full w-full")
+                    // Botón de menú móvil
+                    button#menu-btn(class="text-indigo-600 hover:text-indigo-700 transition-colors")
+                        svg.h-6.w-6(xmlns='http://www.w3.org/2000/svg' fill='none' viewbox='0 0 24 24' stroke='currentColor')
+                            path(stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6h16M4 12h16m-7 6h7')
+
+                    // Contenido de la página
+                    block contenido
+
+        // Scripts
+        script(src="/js/sidebar.js")
+        block scripts

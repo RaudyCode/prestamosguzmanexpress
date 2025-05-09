@@ -1,0 +1,52 @@
+{
+  "name": "03.prestamosguzman",
+  "version": "1.0.0",
+  "description": "Este proyecto es para una ruta de pretamos hecho con node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "css": "postcss public/css/tailwind.css -o public/css/app.css --watch",
+    "js": "webpack --watch",
+    "dev": "concurrently \"npm run css\" \"npm run js\"",
+    "db:importar": "node ./seed/seeder.js -i",
+    "db:eliminar": "node ./seed/seeder.js -e"
+  },
+  "keywords": [
+    "MVC",
+    "PUG",
+    "TailwindCSS",
+    "MYSQL",
+    "SEQUELIZE"
+  ],
+  "type": "module",
+  "author": "Raudy Garcia",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.4.5",
+    "dropzone": "^5.9.3",
+    "express": "^4.21.1",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "jsprintmanager": "^7.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.11.3",
+    "node-notifier": "^10.0.1",
+    "nodemailer": "^6.9.16",
+    "pug": "^3.0.3",
+    "sequelize": "^6.37.5",
+    "toastr": "^2.1.4"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "postcss": "^8.4.47",
+    "postcss-cli": "^11.0.0",
+    "tailwindcss": "^3.4.15",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4"
+  }
+}

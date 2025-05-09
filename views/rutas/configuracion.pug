@@ -1,0 +1,36 @@
+extends ../layout/dashboard
+
+block contenido
+    h1.text-3xl.font-extrabold.text-gray-900.mb-6 Configuración
+
+    if error
+        p.text-red-500.font-bold.mb-4= error
+
+    form#configuracionForm(class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" method="POST")
+        input(type="hidden" name="_csrf" value=csrfToken)
+        div.mb-4
+            label(for="nombreCompania").block.text-gray-700.font-bold.mb-2 Nombre de la Compañía
+            input#nombreCompania(type="text" name="nombreCompania" placeholder="Nombre de la compañía" value=configuracion.nombreCompania class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline")
+
+        div.mb-4
+            label(for="telefono1").block.text-gray-700.font-bold.mb-2 Teléfono 1
+            input#telefono1(type="text" name="telefono1" placeholder="Teléfono 1" value=configuracion.telefono1 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline")
+
+        div.mb-4
+            label(for="telefono2").block.text-gray-700.font-bold.mb-2 Teléfono 2
+            input#telefono2(type="text" name="telefono2" placeholder="Teléfono 2" value=configuracion.telefono2 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline")
+
+        input(type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" value="Actualizar Datos")
+        
+
+    script.
+        document.addEventListener('DOMContentLoaded', () => {
+            const actualizarBtn = document.getElementById('actualizarConfiguracion');
+            actualizarBtn.addEventListener('click', async () => {
+                const body = {
+                    nombreCompania: document.getElementById('nombreCompania').value,
+                    telefono1: document.getElementById('telefono1').value,
+                    telefono2: document.getElementById('telefono2').value
+                };
+            });
+        });

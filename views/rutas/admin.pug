@@ -1,0 +1,596 @@
+extends ../layout/dashboard
+
+block contenido
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8")
+        // Encabezado
+        div(class="mb-8")
+            h1(class="text-3xl font-extrabold text-gray-900 mb-2") Bienvenido al Panel de Administración
+            p(class="text-gray-600")= usuarioName
+
+        // Filtros y Controles
+        div(class="bg-white rounded-lg shadow-sm p-6 mb-8")
+            div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6")
+                // Filtro de tiempo
+                div
+                    label(for="filtroTiempo" class="block text-sm font-medium text-gray-700 mb-2") Período de Análisis
+                    select#filtroTiempo(class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500")
+                        option(value="semana") Última Semana
+                        option(value="mes") Último Mes
+                        option(value="año") Último Año
+
+                // Filtro de estado
+                div
+                    label(for="filtroEstado" class="block text-sm font-medium text-gray-700 mb-2") Estado
+                    select#filtroEstado(class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500")
+                        option(value="todos") Todos
+                        option(value="activos") Activos
+                        option(value="atrasados") Atrasados
+                        option(value="finalizados") Finalizados
+
+                // Botón de exportar
+                div(class="flex items-end")
+                    button#exportarBtn(type="button" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2")
+                        svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4")
+                        span Exportar Reporte
+
+        // Contenedor de métricas
+        div(class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8")
+            // Métrica 1: Totales generados
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow")
+                div(class="p-6")
+                    div(class="flex items-center justify-between mb-4")
+                        h2(class="text-xl font-semibold text-gray-800") Totales Generados
+                        svg(class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
+                    p#totalGenerado(class="text-3xl font-bold text-indigo-600") $0
+                    p(class="text-sm text-gray-500 mt-2") Total acumulado en el período
+
+            // Métrica 2: Pagos recibidos
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow")
+                div(class="p-6")
+                    div(class="flex items-center justify-between mb-4")
+                        h2(class="text-xl font-semibold text-gray-800") Pagos Recibidos
+                        svg(class="h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01")
+                    canvas#pagosRecividos(class="w-full h-48")
+
+            // Métrica 3: Estado de los préstamos
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow")
+                div(class="p-6")
+                    div(class="flex items-center justify-between mb-4")
+                        h2(class="text-xl font-semibold text-gray-800") Estado de los Préstamos
+                        svg(class="h-8 w-8 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+                    canvas#estadoPrestamosChart(class="w-full h-48")
+
+            // Métrica 4: Estado de los clientes
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow")
+                div(class="p-6")
+                    div(class="flex items-center justify-between mb-4")
+                        h2(class="text-xl font-semibold text-gray-800") Estado de los Clientes
+                        svg(class="h-8 w-8 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z")
+                    canvas#clientesEstadoChart(class="w-full h-48")
+
+            // Métrica 5: Tendencias de atrasos
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow")
+                div(class="p-6")
+                    div(class="flex items-center justify-between mb-4")
+                        h2(class="text-xl font-semibold text-gray-800") Tendencias de Atrasos
+                        svg(class="h-8 w-8 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6")
+                    canvas#tendenciasAtrasosChart(class="w-full h-48")
+
+            // Métrica 6: Resumen de Actividad
+            div(class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow")
+                div(class="p-6")
+                    div(class="flex items-center justify-between mb-4")
+                        h2(class="text-xl font-semibold text-gray-800") Resumen de Actividad
+                        svg(class="h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z")
+                    div#resumenActividad(class="space-y-4")
+                        // Se llenará dinámicamente con JavaScript
+
+block scripts
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js")
+    script.
+        document.addEventListener('DOMContentLoaded', function() {
+            const rutaId = #{id};
+            let pagosRecividos, estadoPrestamosChart, clientesEstadoChart, tendenciasAtrasosChart;
+            let datosActuales = null;
+
+            // Configuración de colores para los gráficos
+            const chartColors = {
+                primary: '#4F46E5', // indigo-600
+                success: '#10B981', // emerald-500
+                warning: '#F59E0B', // amber-500
+                danger: '#EF4444',  // red-500
+                info: '#3B82F6',    // blue-500
+                secondary: '#6B7280' // gray-500
+            };
+
+            // Sistema de notificaciones
+            function mostrarNotificacion(mensaje, tipo = 'info') {
+                const notificacion = document.createElement('div');
+                notificacion.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg transform transition-all duration-500 translate-x-full`;
+                
+                // Configurar colores según el tipo
+                switch(tipo) {
+                    case 'success':
+                        notificacion.classList.add('bg-green-100', 'text-green-800', 'border-green-500');
+                        break;
+                    case 'error':
+                        notificacion.classList.add('bg-red-100', 'text-red-800', 'border-red-500');
+                        break;
+                    case 'warning':
+                        notificacion.classList.add('bg-yellow-100', 'text-yellow-800', 'border-yellow-500');
+                        break;
+                    default:
+                        notificacion.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-500');
+                }
+
+                notificacion.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            ${tipo === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />' :
+                              tipo === 'error' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />' :
+                              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'}
+                        </svg>
+                        <p>${mensaje}</p>
+                    </div>
+                `;
+
+                document.body.appendChild(notificacion);
+                
+                // Animar entrada
+                setTimeout(() => {
+                    notificacion.classList.remove('translate-x-full');
+                }, 100);
+
+                // Remover después de 5 segundos
+                setTimeout(() => {
+                    notificacion.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        document.body.removeChild(notificacion);
+                    }, 500);
+                }, 5000);
+            }
+
+            async function cargarMetricas(id, filtro, estado = 'todos') {
+                try {
+                    const response = await fetch(`/api/metricas/${id}?filtro=${filtro}&estado=${estado}`);
+                    if (!response.ok) throw new Error('Error al cargar las métricas');
+                    
+                const data = await response.json();
+                    datosActuales = data; // Guardar datos actuales
+
+                    // Actualizar Totales Generados
+                    document.getElementById('totalGenerado').textContent = 
+                        new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' })
+                        .format(data.totalGenerado);
+
+                    // Gráfico de Pagos Recibidos
+                if (pagosRecividos) pagosRecividos.destroy();
+                    const pagosCtx = document.getElementById('pagosRecividos').getContext('2d');
+                    pagosRecividos = new Chart(pagosCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.pagosClasificados.map(pago => pago.estado),
+                        datasets: [{
+                            label: 'Monto',
+                            data: data.pagosClasificados.map(pago => pago.total),
+                                backgroundColor: [chartColors.success, chartColors.warning, chartColors.danger]
+                        }]
+                    },
+                    options: {
+                            responsive: true,
+                        plugins: {
+                                legend: { position: 'top' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return new Intl.NumberFormat('es-DO', { 
+                                                style: 'currency', 
+                                                currency: 'DOP' 
+                                            }).format(context.raw);
+                                        }
+                                    }
+                                }
+                        },
+                        scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return new Intl.NumberFormat('es-DO', { 
+                                                style: 'currency', 
+                                                currency: 'DOP',
+                                                maximumFractionDigits: 0
+                                            }).format(value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Gráfico de Estado de Préstamos
+                if (estadoPrestamosChart) estadoPrestamosChart.destroy();
+                    const prestamosCtx = document.getElementById('estadoPrestamosChart').getContext('2d');
+                    estadoPrestamosChart = new Chart(prestamosCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.prestamosClasificados.map(prestamo => prestamo.estado),
+                        datasets: [{
+                            data: data.prestamosClasificados.map(prestamo => prestamo.cantidad),
+                                backgroundColor: [chartColors.success, chartColors.info, chartColors.danger]
+                        }]
+                    },
+                    options: {
+                            responsive: true,
+                        plugins: {
+                                legend: { position: 'bottom' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = Math.round((context.raw / total) * 100);
+                                            return `${context.label}: ${context.raw} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Gráfico de Estado de Clientes
+                if (clientesEstadoChart) clientesEstadoChart.destroy();
+                    const clientesCtx = document.getElementById('clientesEstadoChart').getContext('2d');
+                    clientesEstadoChart = new Chart(clientesCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.clientesClasificados.map(cliente => cliente.estado),
+                        datasets: [{
+                            data: data.clientesClasificados.map(cliente => cliente.cantidad),
+                                backgroundColor: [chartColors.success, chartColors.danger, chartColors.secondary]
+                        }]
+                    },
+                    options: {
+                            responsive: true,
+                        plugins: {
+                                legend: { position: 'bottom' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = Math.round((context.raw / total) * 100);
+                                            return `${context.label}: ${context.raw} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Gráfico de Tendencias de Atrasos
+                if (tendenciasAtrasosChart) tendenciasAtrasosChart.destroy();
+                    const atrasosCtx = document.getElementById('tendenciasAtrasosChart').getContext('2d');
+                    tendenciasAtrasosChart = new Chart(atrasosCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.atrasosClasificados.map(atraso => `Semana ${atraso.semanasAtrasadas}`),
+                        datasets: [{
+                                label: 'Cantidad de Atrasos',
+                            data: data.atrasosClasificados.map(atraso => atraso.cantidad),
+                                borderColor: chartColors.primary,
+                                backgroundColor: `${chartColors.primary}20`,
+                                fill: true,
+                                tension: 0.4
+                        }]
+                    },
+                    options: {
+                            responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Actualizar Resumen de Actividad
+                    actualizarResumenActividad(data);
+
+                    mostrarNotificacion('Métricas actualizadas correctamente', 'success');
+            } catch (error) {
+                console.error('Error al cargar las métricas:', error);
+                    mostrarNotificacion('Error al cargar las métricas: ' + error.message, 'error');
+                }
+            }
+
+            function actualizarResumenActividad(data) {
+                const resumen = document.getElementById('resumenActividad');
+                
+                // Calcular métricas adicionales
+                const prestamosActivos = data.prestamosClasificados.find(p => p.estado === 'Activo')?.cantidad || 0;
+                const prestamosAtrasados = data.prestamosClasificados.find(p => p.estado === 'Atrasado')?.cantidad || 0;
+                const prestamosFinalizados = data.prestamosClasificados.find(p => p.estado === 'Finalizado')?.cantidad || 0;
+                const totalPrestamos = prestamosActivos + prestamosAtrasados + prestamosFinalizados;
+                
+                const clientesActivos = data.clientesClasificados.find(c => c.estado === 'Activo')?.cantidad || 0;
+                const clientesInactivos = data.clientesClasificados.find(c => c.estado === 'Inactivo')?.cantidad || 0;
+                const totalClientes = clientesActivos + clientesInactivos;
+                
+                const pagosPendientes = data.pagosClasificados.find(p => p.estado === 'Pendiente')?.total || 0;
+                const pagosCompletados = data.pagosClasificados.find(p => p.estado === 'Completado')?.total || 0;
+                const totalPagos = pagosPendientes + pagosCompletados;
+                
+                const tasaRecuperacion = calcularTasaRecuperacion(data);
+                const tasaAtraso = totalPrestamos > 0 ? Math.round((prestamosAtrasados / totalPrestamos) * 100) : 0;
+
+                resumen.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Préstamos -->
+                        <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" 
+                             onclick="mostrarDetallesPrestamos()">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-gray-700">Préstamos</h3>
+                                <span class="text-sm text-gray-500">Total: ${totalPrestamos}</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Activos</span>
+                                    <span class="font-medium text-green-600">${prestamosActivos}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Atrasados</span>
+                                    <span class="font-medium text-red-600">${prestamosAtrasados}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Finalizados</span>
+                                    <span class="font-medium text-blue-600">${prestamosFinalizados}</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Tasa de Atraso</span>
+                                    <span class="font-medium ${tasaAtraso > 20 ? 'text-red-600' : 'text-green-600'}">${tasaAtraso}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Clientes -->
+                        <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                             onclick="mostrarDetallesClientes()">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-gray-700">Clientes</h3>
+                                <span class="text-sm text-gray-500">Total: ${totalClientes}</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Activos</span>
+                                    <span class="font-medium text-green-600">${clientesActivos}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Inactivos</span>
+                                    <span class="font-medium text-gray-600">${clientesInactivos}</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Tasa de Actividad</span>
+                                    <span class="font-medium text-indigo-600">${Math.round((clientesActivos / totalClientes) * 100)}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pagos -->
+                        <div class="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                             onclick="mostrarDetallesPagos()">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-gray-700">Pagos</h3>
+                                <span class="text-sm text-gray-500">Total: ${new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(totalPagos)}</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Pendientes</span>
+                                    <span class="font-medium text-yellow-600">${new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(pagosPendientes)}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Completados</span>
+                                    <span class="font-medium text-green-600">${new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(pagosCompletados)}</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Tasa de Recuperación</span>
+                                    <span class="font-medium ${tasaRecuperacion > 80 ? 'text-green-600' : 'text-yellow-600'}">${tasaRecuperacion}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rendimiento -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-semibold text-gray-700">Rendimiento</h3>
+                                <span class="text-sm text-gray-500">General</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Eficiencia</span>
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-indigo-600">${calcularEficiencia(data)}%</span>
+                                        <svg class="h-4 w-4 ml-1 ${calcularEficiencia(data) > 80 ? 'text-green-600' : 'text-yellow-600'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Crecimiento</span>
+                                    <div class="flex items-center">
+                                        <span class="font-medium text-indigo-600">${calcularCrecimiento(data)}%</span>
+                                        <svg class="h-4 w-4 ml-1 ${calcularCrecimiento(data) > 0 ? 'text-green-600' : 'text-red-600'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function calcularTasaRecuperacion(data) {
+                const pagosCompletados = data.pagosClasificados.find(p => p.estado === 'Completado')?.total || 0;
+                const totalPagos = data.pagosClasificados.reduce((acc, curr) => acc + curr.total, 0);
+                return totalPagos > 0 ? Math.round((pagosCompletados / totalPagos) * 100) : 0;
+            }
+
+            function calcularEficiencia(data) {
+                const prestamosActivos = data.prestamosClasificados.find(p => p.estado === 'Activo')?.cantidad || 0;
+                const prestamosAtrasados = data.prestamosClasificados.find(p => p.estado === 'Atrasado')?.cantidad || 0;
+                const totalPrestamos = prestamosActivos + prestamosAtrasados;
+                
+                if (totalPrestamos === 0) return 100;
+                return Math.round((prestamosActivos / totalPrestamos) * 100);
+            }
+
+            function calcularCrecimiento(data) {
+                // Aquí podrías implementar la lógica para calcular el crecimiento
+                // Por ahora retornamos un valor de ejemplo
+                return 15;
+            }
+
+            function mostrarDetallesPrestamos() {
+                if (!datosActuales) return;
+                
+                const prestamos = datosActuales.prestamosClasificados;
+                const detalles = prestamos.map(p => `${p.estado}: ${p.cantidad}`).join('\n');
+                
+                mostrarNotificacion('Detalles de Préstamos:\n' + detalles, 'info');
+            }
+
+            function mostrarDetallesClientes() {
+                if (!datosActuales) return;
+                
+                const clientes = datosActuales.clientesClasificados;
+                const detalles = clientes.map(c => `${c.estado}: ${c.cantidad}`).join('\n');
+                
+                mostrarNotificacion('Detalles de Clientes:\n' + detalles, 'info');
+            }
+
+            function mostrarDetallesPagos() {
+                if (!datosActuales) return;
+                
+                const pagos = datosActuales.pagosClasificados;
+                const detalles = pagos.map(p => `${p.estado}: ${new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(p.total)}`).join('\n');
+                
+                mostrarNotificacion('Detalles de Pagos:\n' + detalles, 'info');
+            }
+
+            function exportarReporte() {
+                if (!datosActuales) {
+                    mostrarNotificacion('No hay datos para exportar', 'warning');
+                    return;
+                }
+
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    // Título
+                    doc.setFontSize(20);
+                    doc.text('Reporte de Métricas', 105, 20, { align: 'center' });
+                    
+                    // Fecha
+                    doc.setFontSize(12);
+                    doc.text(`Generado el: ${new Date().toLocaleDateString('es-DO')}`, 105, 30, { align: 'center' });
+
+                    // Resumen
+                    doc.setFontSize(14);
+                    doc.text('Resumen General', 20, 45);
+                    
+                    const resumenData = [
+                        ['Métrica', 'Valor'],
+                        ['Total Generado', new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(datosActuales.totalGenerado)],
+                        ['Préstamos Activos', datosActuales.prestamosClasificados.find(p => p.estado === 'Activo')?.cantidad || 0],
+                        ['Clientes Activos', datosActuales.clientesClasificados.find(c => c.estado === 'Activo')?.cantidad || 0],
+                        ['Tasa de Recuperación', `${calcularTasaRecuperacion(datosActuales)}%`]
+                    ];
+
+                    doc.autoTable({
+                        startY: 50,
+                        head: [resumenData[0]],
+                        body: resumenData.slice(1),
+                        theme: 'grid',
+                        headStyles: { fillColor: [79, 70, 229] }
+                    });
+
+                    // Estado de Pagos
+                    doc.setFontSize(14);
+                    doc.text('Estado de Pagos', 20, doc.lastAutoTable.finalY + 20);
+                    
+                    const pagosData = datosActuales.pagosClasificados.map(pago => [
+                        pago.estado,
+                        new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(pago.total)
+                    ]);
+
+                    doc.autoTable({
+                        startY: doc.lastAutoTable.finalY + 25,
+                        head: [['Estado', 'Monto']],
+                        body: pagosData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [79, 70, 229] }
+                    });
+
+                    // Estado de Préstamos
+                    doc.setFontSize(14);
+                    doc.text('Estado de Préstamos', 20, doc.lastAutoTable.finalY + 20);
+                    
+                    const prestamosData = datosActuales.prestamosClasificados.map(prestamo => [
+                        prestamo.estado,
+                        prestamo.cantidad
+                    ]);
+
+                    doc.autoTable({
+                        startY: doc.lastAutoTable.finalY + 25,
+                        head: [['Estado', 'Cantidad']],
+                        body: prestamosData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [79, 70, 229] }
+                    });
+
+                    // Guardar PDF
+                    doc.save(`reporte-metricas-${new Date().toISOString().split('T')[0]}.pdf`);
+                    mostrarNotificacion('Reporte exportado correctamente', 'success');
+                } catch (error) {
+                    console.error('Error al exportar el reporte:', error);
+                    mostrarNotificacion('Error al exportar el reporte: ' + error.message, 'error');
+                }
+            }
+
+            // Event Listeners
+        document.getElementById('filtroTiempo').addEventListener('change', (event) => {
+                const estado = document.getElementById('filtroEstado').value;
+                cargarMetricas(rutaId, event.target.value, estado);
+            });
+
+            document.getElementById('filtroEstado').addEventListener('change', (event) => {
+                const tiempo = document.getElementById('filtroTiempo').value;
+                cargarMetricas(rutaId, tiempo, event.target.value);
+            });
+
+            document.getElementById('exportarBtn').addEventListener('click', exportarReporte);
+
+            // Cargar métricas inicialmente
+            cargarMetricas(rutaId, 'semana', 'todos');
+        });

@@ -1,0 +1,18 @@
+td(class=`whitespace-nowrap px-6 py-4 flex gap-2  `)
+
+                                button#openModal.block.text-white.bg-blue-700.font-medium.rounded-lg.text-sm.px-5.text-center(class='hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800' type='button') ...
+
+                                 
+
+                            #default-modal.hidden.fixed.top-0.right-0.left-0.z-50.flex.justify-center.items-center.w-full.h-full.bg-black.bg-opacity-50
+                                .relative.p-4.w-full.max-w-2xl.bg-white.rounded-lg.shadow-lg
+                                    button#closeModal.absolute.top-2.right-2.text-gray-500(class='hover:text-gray-700 pb-5') &#x2716;
+                                    div(class="flex flex-col gap-4 p-8") 
+                                        a(href=`/prestamos/ver/${prestamo.id}` class=" text-center cursor-pointer px-2 py-4  text-xs leading-5 font-semibold rounded-sm bg-indigo-100 text-indigo-800") Ver
+
+                                        a(href=`/prestamos/ver/${prestamo.id}` class=" text-center cursor-pointer px-2 py-4  text-xs leading-5 font-semibold rounded-sm bg-green-100 text-green-800") Pagar
+                                                                        
+                                        a(href=`/prestamos/editar/${prestamo.id}` class=" text-center cursor-pointer px-2 py-4  text-xs leading-5 font-semibold rounded-sm bg-blue-100 text-blue-800") Editar 
+
+                                        form(class="m-0")
+                                            input( class="w-full text-center cursor-pointer px-2 py-4  text-xs leading-5 font-semibold rounded-sm bg-red-100 text-red-800" type="button", value="Eliminar")

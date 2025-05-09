@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sidebar Responsiva</title>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Contenedor principal -->
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-purple-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
+            <a href="#" class="flex items-center space-x-2 px-4">
+                <span class="text-2xl font-extrabold">Dashboard</span>
+            </a>
+            <nav>
+                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-purple-700">🏠 Inicio</a>
+                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-purple-700">👤 Usuarios</a>
+                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-purple-700">📂 Empleados</a>
+                <a href="#" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-purple-700">📋 Asistencias</a>
+            </nav>
+        </aside>
+
+        <!-- Contenido principal -->
+        <div class="flex-1 flex flex-col">
+            <!-- Barra superior -->
+            <header class="bg-white shadow-md p-4 flex justify-between items-center">
+                <button id="menu-btn" class="text-purple-800 md:hidden">
+                    <!-- Ícono de menú -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+                <input type="text" placeholder="Buscar..." class="border px-3 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </header>
+
+            <!-- Contenido -->
+            <main class="p-6">
+                <h1 class="text-2xl font-bold text-gray-800">Bienvenido al Panel</h1>
+            </main>
+        </div>
+    </div>
+
+    <!-- Script para manejar la visibilidad de la sidebar -->
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menu-btn');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+    </script>
+
+</body>
+</html>

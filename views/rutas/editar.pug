@@ -1,0 +1,71 @@
+extends ../layout/header-ruta
+
+block contenido
+    div(class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8")
+        // Encabezado
+        div(class="mb-8")
+            h1(class="font-extrabold text-3xl md:text-5xl text-gray-900 mb-2")=pagina
+            p(class="text-gray-600") Modifica los detalles de la ruta
+
+        // Mensajes de error
+        if errores
+            div(class="max-w-md mx-auto mb-8")
+                each error in errores
+                    div(class="bg-red-50 border-l-4 border-red-500 p-4 mb-2")
+                        p(class="text-red-700 font-medium")= error.msg
+
+        // Formulario de edición
+        div(class="bg-white rounded-lg shadow-lg overflow-hidden")
+            div(class="px-6 py-8")
+                form.space-y-6(method="POST" class="max-w-lg mx-auto")
+                    input(type="hidden" name="_csrf" value=csrfToken)
+
+                    // Campo Ruta
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="nombre") Ruta
+                        div(class="relative")
+                            input(id="nombre" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" 
+                                placeholder="Nombre de la Ruta" 
+                                type="text" 
+                                name="nombre" 
+                                value=datos.nombre ? datos.nombre : '')
+
+                    // Campo Capital
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="capital") Capital
+                        div(class="relative")
+                            input(id="capital" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" 
+                                placeholder="Capital de Ruta" 
+                                type="number" 
+                                name="capital" 
+                                value=datos.capital ? datos.capital : '')
+
+                    // Campo Día de Cobro
+                    div
+                        label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="diaCobro") Día de Cobro
+                        select#diaCobro(name='diaCobro' 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors")
+                            option(value='Lunes' selected= datos.diaCobro ? datos.diaCobro == 'Lunes' ? true : false : null) Lunes
+                            option(value='Martes' selected= datos.diaCobro ? datos.diaCobro == 'Martes' ? true : false : null) Martes
+                            option(value='Miércoles' selected= datos.diaCobro ? datos.diaCobro == 'Miércoles' ? true : false : null) Miércoles
+                            option(value='Jueves' selected= datos.diaCobro ? datos.diaCobro == 'Jueves' ? true : false : null) Jueves
+                            option(value='Viernes' selected= datos.diaCobro ? datos.diaCobro == 'Viernes' ? true : false : null) Viernes
+                            option(value='Sábado' selected= datos.diaCobro ? datos.diaCobro == 'Sábado' ? true : false : null) Sábado
+                            option(value='Domingo' selected= datos.diaCobro ? datos.diaCobro == 'Domingo' ? true : false : null) Domingo
+
+                    // Botones de acción
+                    div(class="flex justify-center gap-4")
+                        button(type="submit" 
+                            class="w-full max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2")
+                            svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7")
+                            span Guardar Cambios
+
+                        a(href="/rutas" 
+                            class="w-full max-w-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2")
+                            svg(class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+                                path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12")
+                            span Cancelar
+

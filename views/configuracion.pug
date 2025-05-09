@@ -1,0 +1,97 @@
+extends layout/dashboard
+
+block contenido
+    P(class="font-bold text-grey-200 text-center bg-indigo-600 p-2 mb-4 mt-2 text-white") Configuración del Sistema
+    h1(class="font-extrabold text-2xl md:text-5xl mb-4") Configuración
+
+    // Formulario de Configuración
+    div(class="bg-white shadow-lg rounded-lg overflow-hidden")
+        div(class="bg-indigo-600 px-6 py-4")
+            h2(class="text-xl font-bold text-white") Datos de la Compañía
+        div(class="p-6")
+            form#configuracionForm(method="POST" class="space-y-6")
+                input(type="hidden" name="_csrf" value=csrfToken)
+                // Nombre de la Compañía
+                div
+                    label(for="nombreCompania" class="block text-sm font-medium text-gray-700") Nombre de la Compañía
+                    div(class="mt-1")
+                        input#nombreCompania(
+                            type="text" 
+                            name="nombreCompania" 
+                            placeholder="Nombre de la compañía" 
+                            value=configuracion.nombreCompania
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        )
+
+                // Teléfono 1
+                div
+                    label(for="telefono1" class="block text-sm font-medium text-gray-700") Teléfono Principal
+                    div(class="mt-1")
+                        input#telefono1(
+                            type="text" 
+                            name="telefono1" 
+                            placeholder="Teléfono principal" 
+                            value=configuracion.telefono1
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        )
+
+                // Teléfono 2
+                div
+                    label(for="telefono2" class="block text-sm font-medium text-gray-700") Teléfono Secundario
+                    div(class="mt-1")
+                        input#telefono2(
+                            type="text" 
+                            name="telefono2" 
+                            placeholder="Teléfono secundario (opcional)" 
+                            value=configuracion.telefono2
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        )
+
+                // Botón de Actualizar
+                div(class="flex justify-end")
+                    button(
+                        type="submit" 
+                        id="actualizarConfiguracion" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    )
+                        svg(class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor")
+                            path(fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd")
+                        span Actualizar Configuración
+
+                        
+
+        script.
+            document.addEventListener('DOMContentLoaded', async () => {
+                const form = document.getElementById('configuracionForm');
+                const nombreCompania = document.getElementById('nombreCompania');
+                const telefono1 = document.getElementById('telefono1');
+                const telefono2 = document.getElementById('telefono2');
+                const actualizarBtn = document.getElementById('actualizarConfiguracion');
+
+                // Obtener configuración actual
+                const response = await fetch('/configuracion');
+                const data = await response.json();
+                if (data) {
+                    nombreCompania.value = data.nombreCompania || '';
+                    telefono1.value = data.telefono1 || '';
+                    telefono2.value = data.telefono2 || '';
+                }
+
+                // Actualizar configuración
+                actualizarBtn.addEventListener('click', async () => {
+                    const body = {
+                        nombreCompania: nombreCompania.value,
+                        telefono1: telefono1.value,
+                        telefono2: telefono2.value
+                    };
+
+                    const res = await fetch('/configuracion/actualizar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+
+                    const result = await res.json();
+                    alert(result.message || 'Error al actualizar la configuración');
+                });
+            });
